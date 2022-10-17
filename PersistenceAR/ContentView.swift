@@ -5,39 +5,55 @@
 //  Created by Zaid Neurothrone on 2022-10-17.
 //
 
-import SwiftUI
+import ARKit
 import RealityKit
+import SwiftUI
 
 struct ContentView : View {
-    var body: some View {
-        ARViewContainer().edgesIgnoringSafeArea(.all)
+  @StateObject var viewModel: ViewModel = .init()
+  
+  var body: some View {
+    VStack {
+      HStack {
+        Text(viewModel.worldMapStatus.rawValue)
+          .font(.largeTitle)
+      }
+      .frame(maxWidth: .infinity, maxHeight: 60)
+      .background(.purple)
+      
+      ARViewContainer(viewModel: viewModel)
+        .edgesIgnoringSafeArea(.all)
+      
+      HStack {
+        Button("Clear") {
+          viewModel.onClear()
+        }
+        .buttonStyle(.bordered)
+        .tint(.red)
+        .padding()
+        
+        Spacer()
+        
+        Button("Save") {
+          viewModel.onSave()
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.purple)
+        .padding()
+      }
     }
-}
-
-struct ARViewContainer: UIViewRepresentable {
-    
-    func makeUIView(context: Context) -> ARView {
-        
-        let arView = ARView(frame: .zero)
-        
-        // Load the "Box" scene from the "Experience" Reality File
-        let boxAnchor = try! Experience.loadBox()
-        
-        // Add the box anchor to the scene
-        arView.scene.anchors.append(boxAnchor)
-        
-        return arView
-        
+    .alert("AR World Map has been saved", isPresented: $viewModel.wasSaved) {
+      Button(role: .cancel, action: {}) {
+        Text("OK")
+      }
     }
-    
-    func updateUIView(_ uiView: ARView, context: Context) {}
-    
+  }
 }
 
 #if DEBUG
 struct ContentView_Previews : PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+  static var previews: some View {
+    ContentView()
+  }
 }
 #endif
